@@ -1,0 +1,531 @@
+{
+  "person_time": {
+    "n_patients": 49282,
+    "original_patient_years": 147846.0,
+    "original_patient_months": 1774152,
+    "note": "Person-time uses fixed 36-month window per patient. Actual enrollment spans may be shorter for some patients, which would increase incidence rate estimates."
+  },
+  "age_breakdown": {
+    "0-17": {
+      "overall_n": 10831,
+      "overall_pct": 22.0,
+      "barrier_n": 3297,
+      "barrier_pct_of_age_group": 30.4,
+      "no_barrier_n": 7534,
+      "in_barrier_group_n": 3297,
+      "in_barrier_group_pct": 18.2,
+      "in_no_barrier_group_n": 7534,
+      "in_no_barrier_group_pct": 24.2
+    },
+    "18-44": {
+      "overall_n": 23790,
+      "overall_pct": 48.3,
+      "barrier_n": 9102,
+      "barrier_pct_of_age_group": 38.3,
+      "no_barrier_n": 14688,
+      "in_barrier_group_n": 9102,
+      "in_barrier_group_pct": 50.2,
+      "in_no_barrier_group_n": 14688,
+      "in_no_barrier_group_pct": 47.2
+    },
+    "45-64": {
+      "overall_n": 13016,
+      "overall_pct": 26.4,
+      "barrier_n": 5100,
+      "barrier_pct_of_age_group": 39.2,
+      "no_barrier_n": 7916,
+      "in_barrier_group_n": 5100,
+      "in_barrier_group_pct": 28.1,
+      "in_no_barrier_group_n": 7916,
+      "in_no_barrier_group_pct": 25.4
+    },
+    "65+": {
+      "overall_n": 1645,
+      "overall_pct": 3.3,
+      "barrier_n": 647,
+      "barrier_pct_of_age_group": 39.3,
+      "no_barrier_n": 998,
+      "in_barrier_group_n": 647,
+      "in_barrier_group_pct": 3.6,
+      "in_no_barrier_group_n": 998,
+      "in_no_barrier_group_pct": 3.2
+    }
+  },
+  "incidence": {
+    "Scheduling": {
+      "total_events": 21811,
+      "patient_years": 147846.0,
+      "rate_per_100py": 14.75,
+      "rate_95ci": [
+        14.56,
+        14.95
+      ],
+      "patients_with_barrier": 7964,
+      "patient_prevalence_pct": 16.2
+    },
+    "Transportation": {
+      "total_events": 6843,
+      "patient_years": 147846.0,
+      "rate_per_100py": 4.63,
+      "rate_95ci": [
+        4.52,
+        4.74
+      ],
+      "patients_with_barrier": 3002,
+      "patient_prevalence_pct": 6.1
+    },
+    "Paperwork": {
+      "total_events": 23492,
+      "patient_years": 147846.0,
+      "rate_per_100py": 15.89,
+      "rate_95ci": [
+        15.69,
+        16.09
+      ],
+      "patients_with_barrier": 12471,
+      "patient_prevalence_pct": 25.3
+    },
+    "Authorization": {
+      "total_events": 7787,
+      "patient_years": 147846.0,
+      "rate_per_100py": 5.27,
+      "rate_95ci": [
+        5.15,
+        5.38
+      ],
+      "patients_with_barrier": 4851,
+      "patient_prevalence_pct": 9.8
+    },
+    "Any barrier": {
+      "total_events": 59933,
+      "patient_years": 147846.0,
+      "rate_per_100py": 40.54,
+      "patients_with_barrier": 18146,
+      "patient_prevalence_pct": 36.8
+    }
+  },
+  "encounter_normalized_rates": {
+    "Scheduling": {
+      "total_flagged_notes": 21811,
+      "total_encounters": 169279,
+      "rate_per_100_encounters": 12.88
+    },
+    "Transportation": {
+      "total_flagged_notes": 6843,
+      "total_encounters": 169279,
+      "rate_per_100_encounters": 4.04
+    },
+    "Paperwork": {
+      "total_flagged_notes": 23492,
+      "total_encounters": 169279,
+      "rate_per_100_encounters": 13.88
+    },
+    "Authorization": {
+      "total_flagged_notes": 7787,
+      "total_encounters": 169279,
+      "rate_per_100_encounters": 4.6
+    },
+    "Any barrier": {
+      "total_flagged_notes": 59933,
+      "total_encounters": 169279,
+      "rate_per_100_encounters": 35.4
+    }
+  },
+  "costs_three_tiers": {
+    "minimum_wage": {
+      "wage_per_hour": 7.25,
+      "total_cohort_cost": 136462.0,
+      "mean_per_affected_patient": 7.52,
+      "mean_95ci": [
+        7.31,
+        7.73
+      ],
+      "median_per_affected_patient": 2.78,
+      "n_affected": 18146
+    },
+    "living_wage": {
+      "wage_per_hour": 22.0,
+      "total_cohort_cost": 414090.0,
+      "mean_per_affected_patient": 22.82,
+      "mean_95ci": [
+        22.18,
+        23.51
+      ],
+      "median_per_affected_patient": 8.43,
+      "n_affected": 18146
+    },
+    "rbrvs": {
+      "wage_per_hour": 33.4,
+      "total_cohort_cost": 628665.0,
+      "mean_per_affected_patient": 34.64,
+      "mean_95ci": [
+        33.68,
+        35.63
+      ],
+      "median_per_affected_patient": 12.8,
+      "n_affected": 18146
+    },
+    "total_patient_hours": 18822.0,
+    "total_patient_years_of_time": 2.15
+  },
+  "barrier_specific_costs": {
+    "Scheduling": {
+      "n_affected": 7964,
+      "prevalence_pct": 16.2,
+      "minutes_per_flagged_note": 8.1,
+      "mean_flagged_notes_per_patient": 2.74,
+      "costs": {
+        "minimum_wage": {
+          "mean": 2.68,
+          "median": 0.98,
+          "mean_95ci": [
+            2.6,
+            2.77
+          ],
+          "total": 21348.0
+        },
+        "living_wage": {
+          "mean": 8.13,
+          "median": 2.97,
+          "mean_95ci": [
+            7.88,
+            8.39
+          ],
+          "total": 64779.0
+        },
+        "rbrvs": {
+          "mean": 12.35,
+          "median": 4.51,
+          "mean_95ci": [
+            11.99,
+            12.73
+          ],
+          "total": 98346.0
+        }
+      }
+    },
+    "Transportation": {
+      "n_affected": 3002,
+      "prevalence_pct": 6.1,
+      "minutes_per_flagged_note": 37.5,
+      "mean_flagged_notes_per_patient": 2.28,
+      "costs": {
+        "minimum_wage": {
+          "mean": 10.33,
+          "median": 4.53,
+          "mean_95ci": [
+            9.93,
+            10.77
+          ],
+          "total": 31007.0
+        },
+        "living_wage": {
+          "mean": 31.34,
+          "median": 13.75,
+          "mean_95ci": [
+            30.15,
+            32.65
+          ],
+          "total": 94091.0
+        },
+        "rbrvs": {
+          "mean": 47.58,
+          "median": 20.88,
+          "mean_95ci": [
+            45.75,
+            49.52
+          ],
+          "total": 142848.0
+        }
+      }
+    },
+    "Paperwork": {
+      "n_affected": 12471,
+      "prevalence_pct": 25.3,
+      "minutes_per_flagged_note": 23.0,
+      "mean_flagged_notes_per_patient": 1.88,
+      "costs": {
+        "minimum_wage": {
+          "mean": 5.24,
+          "median": 2.78,
+          "mean_95ci": [
+            5.12,
+            5.36
+          ],
+          "total": 65288.0
+        },
+        "living_wage": {
+          "mean": 15.89,
+          "median": 8.43,
+          "mean_95ci": [
+            15.51,
+            16.24
+          ],
+          "total": 198116.0
+        },
+        "rbrvs": {
+          "mean": 24.12,
+          "median": 12.8,
+          "mean_95ci": [
+            23.64,
+            24.65
+          ],
+          "total": 300776.0
+        }
+      }
+    },
+    "Authorization": {
+      "n_affected": 4851,
+      "prevalence_pct": 9.8,
+      "minutes_per_flagged_note": 20.0,
+      "mean_flagged_notes_per_patient": 1.61,
+      "costs": {
+        "minimum_wage": {
+          "mean": 3.88,
+          "median": 2.42,
+          "mean_95ci": [
+            3.8,
+            3.95
+          ],
+          "total": 18819.0
+        },
+        "living_wage": {
+          "mean": 11.77,
+          "median": 7.33,
+          "mean_95ci": [
+            11.55,
+            12.0
+          ],
+          "total": 57105.0
+        },
+        "rbrvs": {
+          "mean": 17.87,
+          "median": 11.13,
+          "mean_95ci": [
+            17.51,
+            18.25
+          ],
+          "total": 86695.0
+        }
+      }
+    }
+  },
+  "disparities": {
+    "n_known_ethnicity": 37861,
+    "n_unknown_ethnicity": 11421,
+    "pct_unknown": 23.2,
+    "prevalence_by_ethnicity": {
+      "AIAN": {
+        "n": 555,
+        "prevalence_pct": 34.4,
+        "rate_ratio_vs_white": 1.053,
+        "rr_95ci": [
+          0.928,
+          1.175
+        ]
+      },
+      "African American": {
+        "n": 12918,
+        "prevalence_pct": 39.7,
+        "rate_ratio_vs_white": 1.216,
+        "rr_95ci": [
+          1.181,
+          1.249
+        ]
+      },
+      "Asian": {
+        "n": 1855,
+        "prevalence_pct": 27.6,
+        "rate_ratio_vs_white": 0.844,
+        "rr_95ci": [
+          0.781,
+          0.91
+        ]
+      },
+      "Hispanic": {
+        "n": 3737,
+        "prevalence_pct": 23.5,
+        "rate_ratio_vs_white": 0.72,
+        "rr_95ci": [
+          0.676,
+          0.766
+        ]
+      },
+      "NHPI": {
+        "n": 459,
+        "prevalence_pct": 26.1,
+        "rate_ratio_vs_white": 0.8,
+        "rr_95ci": [
+          0.68,
+          0.931
+        ]
+      },
+      "Other": {
+        "n": 1075,
+        "prevalence_pct": 24.4,
+        "rate_ratio_vs_white": 0.746,
+        "rr_95ci": [
+          0.67,
+          0.83
+        ]
+      },
+      "White": {
+        "n": 17262,
+        "prevalence_pct": 32.7,
+        "rate_ratio_vs_white": 1.0,
+        "rr_95ci": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "payer_stratified": {
+      "ABHVA": {
+        "AIAN": {
+          "prev": 47.8,
+          "n": 138
+        },
+        "African American": {
+          "prev": 46.7,
+          "n": 7777
+        },
+        "Asian": {
+          "prev": 43.1,
+          "n": 605
+        },
+        "White": {
+          "prev": 46.6,
+          "n": 5179
+        }
+      },
+      "UHCWA": {
+        "AIAN": {
+          "prev": 28.4,
+          "n": 310
+        },
+        "African American": {
+          "prev": 26.1,
+          "n": 2536
+        },
+        "Asian": {
+          "prev": 18.6,
+          "n": 1000
+        },
+        "Hispanic": {
+          "prev": 22.6,
+          "n": 2986
+        },
+        "NHPI": {
+          "prev": 26.1,
+          "n": 459
+        },
+        "Other": {
+          "prev": 21.9,
+          "n": 748
+        },
+        "White": {
+          "prev": 25.1,
+          "n": 8758
+        }
+      },
+      "CHPW": {
+        "AIAN": {
+          "prev": 35.6,
+          "n": 90
+        },
+        "African American": {
+          "prev": 31.5,
+          "n": 825
+        },
+        "Asian": {
+          "prev": 22.4,
+          "n": 170
+        },
+        "Hispanic": {
+          "prev": 27.0,
+          "n": 737
+        },
+        "Other": {
+          "prev": 28.2,
+          "n": 308
+        },
+        "White": {
+          "prev": 30.2,
+          "n": 2510
+        }
+      },
+      "SHPVA": {
+        "African American": {
+          "prev": 32.8,
+          "n": 1780
+        },
+        "Asian": {
+          "prev": 33.8,
+          "n": 80
+        },
+        "White": {
+          "prev": 33.1,
+          "n": 815
+        }
+      }
+    },
+    "note": "23.2% of patients had unknown ethnicity and were excluded from disparity analysis. Results should be interpreted with caution given potential informative missingness."
+  },
+  "sensitivity_min_3_encounters": {
+    "min_encounters": 3,
+    "n_included": 18341,
+    "n_excluded": 30941,
+    "pct_excluded": 62.8,
+    "barrier_prevalence_pct": 58.6,
+    "costs": {
+      "minimum_wage": {
+        "mean_per_affected": 10.58,
+        "n_affected": 10749
+      },
+      "living_wage": {
+        "mean_per_affected": 32.11,
+        "n_affected": 10749
+      },
+      "rbrvs": {
+        "mean_per_affected": 48.75,
+        "n_affected": 10749
+      }
+    }
+  },
+  "adult_only": {
+    "n_adults": 38451,
+    "n_children": 10831,
+    "adult_barrier_prevalence_pct": 38.6,
+    "child_barrier_prevalence_pct": 30.4,
+    "adult_costs": {
+      "minimum_wage": {
+        "mean_per_affected": 8.13,
+        "n_affected": 14849
+      },
+      "living_wage": {
+        "mean_per_affected": 24.67,
+        "n_affected": 14849
+      },
+      "rbrvs": {
+        "mean_per_affected": 37.45,
+        "n_affected": 14849
+      }
+    }
+  },
+  "methodology_notes": {
+    "minutes_per_note": {
+      "scheduling": 8.1,
+      "transportation": 37.5,
+      "documentation": 23.0,
+      "authorization": 20.0
+    },
+    "wages": {
+      "minimum_wage": 7.25,
+      "living_wage": 22.0,
+      "rbrvs": 33.4
+    },
+    "bootstrap_resamples": 1000,
+    "person_time_method": "Fixed 36-month window (original pipeline). Actual enrollment-based person-time not available in patient_level_data.csv.",
+    "cost_method": "Per-note costs: each flagged note contributes barrier-specific minutes. Patient total = sum across all flagged notes. Monetized at three wage levels."
+  }
+}

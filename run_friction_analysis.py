@@ -194,19 +194,29 @@ def compute_time_cost(notes):
         "documentation_flag": 23,
         "authorization_flag": 20,
     }
-    wage_per_hour = 7.25  # shadow price lower-bound
-    wage_per_hour_upper = 28.0  # median wage approximation for sensitivity
+    wage_per_hour = 7.25  # federal minimum wage (lower bound)
+    wage_per_hour_upper = 22.0  # MIT Living Wage, state-weighted (central estimate)
+    wage_per_hour_rbrvs = 33.40  # RBRVS conversion factor (upper bound)
     for col in minutes:
         if col not in notes:
             notes[col] = False
     notes["friction_minutes"] = sum(notes[col] * mins for col, mins in minutes.items())
     notes["time_cost"] = (notes["friction_minutes"] / 60.0) * wage_per_hour
     notes["time_cost_upper"] = (notes["friction_minutes"] / 60.0) * wage_per_hour_upper
+    notes["time_cost_rbrvs"] = (notes["friction_minutes"] / 60.0) * wage_per_hour_rbrvs
     return notes
 
 
 def train_ml_classifiers(annot_path: Path, model_dir: Path, threshold: float = 0.5):
     """Train one-vs-rest logistic regression classifiers using adjudicated labels."""
+    # Barrier-specific thresholds (transportation raised to prioritize precision
+    # given low base rate; paperwork lowered to prioritize recall)
+    BARRIER_THRESHOLDS = {
+        "scheduling": 0.50,
+        "transportation": 0.60,
+        "documentation": 0.45,  # paperwork
+        "authorization": 0.50,
+    }
     annot = pd.read_csv(annot_path)
     cats = ["scheduling", "transportation", "documentation", "authorization"]
     y = {cat: annot[f"{cat}_gold"] for cat in cats}
@@ -224,7 +234,10 @@ def train_ml_classifiers(annot_path: Path, model_dir: Path, threshold: float = 0
         probs = rng.random(len(annot))
         split = pd.Series(np.where(probs < 0.6, "train", np.where(probs < 0.8, "val", "test")), index=annot.index)
 
-    vectorizer = TfidfVectorizer(min_df=2, ngram_range=(1, 2), max_features=100000)
+    vectorizer = TfidfVectorizer(
+        min_df=2, max_df=0.90, ngram_range=(1, 2), max_features=5000,
+        sublinear_tf=True, norm="l2",
+    )
     X = vectorizer.fit_transform(X_text)
 
     models = {}
@@ -248,18 +261,27 @@ def train_ml_classifiers(annot_path: Path, model_dir: Path, threshold: float = 0
                 X_cat, y_cat, test_size=0.2, random_state=13, stratify=y_cat
             )
             X_val, y_val = X_test, y_test
+        best_c, best_f1 = 1.0, -1.0
+        for c_val in [0.01, 0.1, 1.0, 10.0]:
+            cv_clf = LogisticRegression(
+                penalty="l2", C=c_val, max_iter=1000,
+                class_weight="balanced", solver="liblinear",
+            )
+            cv_clf.fit(X_train, y_train)
+            proba_v = cv_clf.predict_proba(X_val)[:, 1]
+            y_v = (proba_v >= BARRIER_THRESHOLDS[cat]).astype(int)
+            m_v = prf(pd.Series(y_v), pd.Series(y_val))
+            if m_v["f1"] == m_v["f1"] and m_v["f1"] > best_f1:
+                best_f1, best_c = m_v["f1"], c_val
         clf = LogisticRegression(
-            penalty="l2",
-            C=2.0,
-            max_iter=1000,
-            class_weight="balanced",
-            n_jobs=4,
+            penalty="l2", C=best_c, max_iter=1000,
+            class_weight="balanced", solver="liblinear",
         )
         clf.fit(X_train, y_train)
         models[cat] = clf
         # Test split metrics
         proba_test = clf.predict_proba(X_test)[:, 1]
-        y_pred_test = (proba_test >= threshold).astype(int)
+        y_pred_test = (proba_test >= BARRIER_THRESHOLDS[cat]).astype(int)
         m_test = prf(pd.Series(y_pred_test), pd.Series(y_test))
         m_test.update(prf_ci(y_pred_test, y_test))
         metrics_test[cat] = m_test
@@ -267,7 +289,7 @@ def train_ml_classifiers(annot_path: Path, model_dir: Path, threshold: float = 0
         roc_data[cat] = {"fpr": fpr.tolist(), "tpr": tpr.tolist(), "auc": float(auc(fpr, tpr))}
         # Validation split metrics
         proba_val = clf.predict_proba(X_val)[:, 1]
-        y_pred_val = (proba_val >= threshold).astype(int)
+        y_pred_val = (proba_val >= BARRIER_THRESHOLDS[cat]).astype(int)
         metrics_val[cat] = prf(pd.Series(y_pred_val), pd.Series(y_val))
         # Random holdout (legacy) for comparability
         metrics_holdout[cat] = metrics_test[cat]
@@ -279,15 +301,20 @@ def train_ml_classifiers(annot_path: Path, model_dir: Path, threshold: float = 0
         joblib.dump(clf, model_dir / f"{cat}_clf.joblib")
 
     metrics = {"test": metrics_test, "val": metrics_val, "holdout": metrics_holdout}
-    return vectorizer, models, metrics, roc_data, threshold
+    return vectorizer, models, metrics, roc_data, BARRIER_THRESHOLDS
 
 
-def apply_ml(models, vectorizer, notes: pd.DataFrame, threshold: float = 0.3) -> pd.DataFrame:
+def apply_ml(models, vectorizer, notes: pd.DataFrame, thresholds: dict = None) -> pd.DataFrame:
+    default_thresholds = {
+        "scheduling": 0.50, "transportation": 0.60,
+        "documentation": 0.45, "authorization": 0.50,
+    }
+    thresholds = thresholds or default_thresholds
     texts = notes["text"].fillna("")
     X_all = vectorizer.transform(texts)
     for cat, clf in models.items():
         proba = clf.predict_proba(X_all)[:, 1]
-        notes[f"{cat}_flag"] = proba >= threshold
+        notes[f"{cat}_flag"] = proba >= thresholds.get(cat, 0.50)
         notes[f"{cat}_prob"] = proba
     flag_cols = [c for c in notes.columns if c.endswith("_flag")]
     notes["friction_any"] = notes[flag_cols].any(axis=1)
@@ -401,30 +428,53 @@ def survival_analysis(notes_valid: pd.DataFrame, hosp: pd.DataFrame, out_path: P
     )
     patient_df["prior_ed"] = patient_df.index.map(prior_counts).fillna(0)
 
-    km = KaplanMeierFitter()
-    fig, ax = plt.subplots(figsize=(7, 5))
-    for flag, label in [(False, "No scheduling barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+    fig, ax = plt.subplots(figsize=(8, 6))
+    km_fitters = []
+    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
         mask = patient_df["sched_barrier"] == flag
         if mask.sum() == 0:
             continue
-        km.fit(patient_df.loc[mask, "time"], event_observed=patient_df.loc[mask, "event"], label=label)
-        km.plot_survival_function(ax=ax)
-    add_at_risk_counts(km, ax=ax)
+        kmf = KaplanMeierFitter()
+        kmf.fit(patient_df.loc[mask, "time"], event_observed=patient_df.loc[mask, "event"], label=label)
+        kmf.plot_survival_function(ax=ax)
+        km_fitters.append(kmf)
+    # Cap x-axis at study duration (≈1100 days)
+    max_study_days = min(1100, patient_df["time"].max())
+    ax.set_xlim(0, max_study_days)
+    if km_fitters:
+        add_at_risk_counts(*km_fitters, ax=ax)
     ax.set_xlabel("Days from landmark")
     ax.set_ylabel("Event-free survival probability")
     ax.set_title("Kaplan-Meier: Scheduling Friction (Landmark)")
+    ax.legend(loc="lower left", fontsize=8, frameon=True)
+    # Add inset zoomed to first 365 days
+    ax_inset = ax.inset_axes([0.50, 0.45, 0.45, 0.45])
+    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+        mask = patient_df["sched_barrier"] == flag
+        if mask.sum() == 0:
+            continue
+        kmf = KaplanMeierFitter()
+        kmf.fit(patient_df.loc[mask, "time"], event_observed=patient_df.loc[mask, "event"], label=label)
+        kmf.plot_survival_function(ax=ax_inset, ci_show=False, legend=False)
+    ax_inset.set_xlim(0, 365)
+    ax_inset.set_ylim(0, 1.0)
+    ax_inset.set_xlabel("Days (0–365)", fontsize=8)
+    ax_inset.set_ylabel("", fontsize=8)
+    ax_inset.tick_params(labelsize=7)
+    ax_inset.set_title("First year detail", fontsize=8)
     fig.tight_layout()
     fig.savefig(out_path, dpi=300)
     plt.close(fig)
 
     # Truncated view (0-180 days post-landmark)
     fig, ax = plt.subplots(figsize=(7, 5))
-    for flag, label in [(False, "No scheduling barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
         mask = patient_df["sched_barrier"] == flag
         if mask.sum() == 0:
             continue
-        km.fit(patient_df.loc[mask, "time"], event_observed=patient_df.loc[mask, "event"], label=label)
-        km.plot_survival_function(ax=ax)
+        kmf_t = KaplanMeierFitter()
+        kmf_t.fit(patient_df.loc[mask, "time"], event_observed=patient_df.loc[mask, "event"], label=label)
+        kmf_t.plot_survival_function(ax=ax)
     ax.set_xlim(0, 180)
     ax.set_xlabel("Days from landmark")
     ax.set_ylabel("Event-free survival probability")
@@ -542,7 +592,7 @@ def prf(pred, gold):
     return {"tp": tp, "fp": fp, "fn": fn, "precision": prec, "recall": rec, "f1": f1}
 
 
-def prf_ci(pred, gold, n_boot: int = 500, seed: int = 13):
+def prf_ci(pred, gold, n_boot: int = 1000, seed: int = 13):
     """Bootstrap CIs for precision/recall/F1."""
     pred_arr = np.asarray(pred).astype(int)
     gold_arr = np.asarray(gold).astype(int)
@@ -682,10 +732,10 @@ def main():
         for cat in cats
     }
 
-    vectorizer, models, holdout_metrics, roc_data, threshold = train_ml_classifiers(
+    vectorizer, models, holdout_metrics, roc_data, thresholds = train_ml_classifiers(
         annot_adjudicated, args.output_dir / "models"
     )
-    notes = apply_ml(models, vectorizer, notes, threshold=threshold)
+    notes = apply_ml(models, vectorizer, notes, thresholds=thresholds)
     # Encounter counts per patient
     encounter_counts = notes.groupby("patient_id").size().rename("encounter_count")
     notes = notes.merge(encounter_counts, on="patient_id", how="left")
@@ -772,7 +822,7 @@ def main():
     boot_totals = []
     boot_totals_upper = []
     rng = np.random.default_rng(13)
-    n_boot = 200
+    n_boot = 1000
     ids = patient_costs.index.to_numpy()
     for _ in range(n_boot):
         sample_ids = rng.choice(ids, size=len(ids), replace=True)
