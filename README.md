@@ -105,6 +105,3 @@ Patient-level `minutes_total` = sum of (count of flagged notes per barrier type 
 
 `run_friction_analysis.py` is the NLP classification pipeline that processes raw encounter notes and produces `patient_level_data.csv`. It requires access to the organization's encounter note database, which is not included. The script is provided for methodological transparency.
 
-## Contact
-
-Sanjay Basu, MD, PhD — sanjay.basu@waymark.co
