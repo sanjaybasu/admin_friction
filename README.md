@@ -1,17 +1,10 @@
 # Administrative Friction in Medicaid: Replication Code
 
-Code and data for reproducing the analyses in:
-
-> Basu S, Baum A, Robinson K, Batniji R. Administrative Friction in Medicaid:
-> Natural Language Processing Analysis of Barriers and Patient Time Costs.
-> *JAMA Health Forum*. 2026.
 
 ## Repository structure
 
 ```
 packaging/admin_friction/
-  data/
-    patient_level_data.csv      # Deidentified patient-level extract (49,282 rows)
   reanalysis_R1.py              # Reproduces all manuscript numbers
   generate_figures.py           # Produces Figure 1 (main text)
   run_friction_analysis.py      # Upstream NLP pipeline (requires raw encounter notes, not included)
