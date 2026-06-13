@@ -31,6 +31,8 @@ chk("RBRVS total cost", r["costs_three_tiers"]["rbrvs"]["total_cohort_cost"], 62
 chk("transportation RBRVS mean", r["barrier_specific_costs"]["Transportation"]["costs"]["rbrvs"]["mean"], 47.58, 0.01)
 chk("AfrAm RR", r["disparities"]["prevalence_by_ethnicity"]["African American"]["rate_ratio_vs_white"], 1.216, 0.001)
 chk("pct unknown ethnicity", r["disparities"]["pct_unknown"], 23.2, 0.05)
+chk("n_known_ethnicity", r["disparities"]["n_known_ethnicity"], 37861)
+chk("n_unknown_ethnicity", r["disparities"]["n_unknown_ethnicity"], 11421)
 chk(">=3 enc prevalence %", r["sensitivity_min_3_encounters"]["barrier_prevalence_pct"], 58.6, 0.05)
 
 sel_path = REV / "revision1_selection_results.json"
