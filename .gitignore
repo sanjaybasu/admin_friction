@@ -1,0 +1,18 @@
+# Patient data — never commit
+data/
+*.csv
+*.parquet
+*.joblib
+
+# Results, figures, manuscript artifacts — not in code repo
+output/
+*.json
+*.pdf
+*.png
+*.docx
+CANONICAL_NUMBERS.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
