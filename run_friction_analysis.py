@@ -430,7 +430,7 @@ def survival_analysis(notes_valid: pd.DataFrame, hosp: pd.DataFrame, out_path: P
 
     fig, ax = plt.subplots(figsize=(8, 6))
     km_fitters = []
-    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+    for flag, label in [(False, "No scheduling burden by landmark"), (True, "Scheduling burden by landmark")]:
         mask = patient_df["sched_barrier"] == flag
         if mask.sum() == 0:
             continue
@@ -445,11 +445,11 @@ def survival_analysis(notes_valid: pd.DataFrame, hosp: pd.DataFrame, out_path: P
         add_at_risk_counts(*km_fitters, ax=ax)
     ax.set_xlabel("Days from landmark")
     ax.set_ylabel("Event-free survival probability")
-    ax.set_title("Kaplan-Meier: Scheduling Friction (Landmark)")
+    ax.set_title("Kaplan-Meier: scheduling burden (landmark)")
     ax.legend(loc="lower left", fontsize=8, frameon=True)
     # Add inset zoomed to first 365 days
     ax_inset = ax.inset_axes([0.50, 0.45, 0.45, 0.45])
-    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+    for flag, label in [(False, "No scheduling burden by landmark"), (True, "Scheduling burden by landmark")]:
         mask = patient_df["sched_barrier"] == flag
         if mask.sum() == 0:
             continue
@@ -468,7 +468,7 @@ def survival_analysis(notes_valid: pd.DataFrame, hosp: pd.DataFrame, out_path: P
 
     # Truncated view (0-180 days post-landmark)
     fig, ax = plt.subplots(figsize=(7, 5))
-    for flag, label in [(False, "No barrier ≤ landmark"), (True, "Scheduling barrier ≤ landmark")]:
+    for flag, label in [(False, "No scheduling burden by landmark"), (True, "Scheduling burden by landmark")]:
         mask = patient_df["sched_barrier"] == flag
         if mask.sum() == 0:
             continue
